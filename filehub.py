@@ -47,7 +47,7 @@ class Application(tornado.web.Application):
             static_path = os.path.join(cur_dir, 'static'),
         )
         super(Application, self).__init__(handlers, **settings)
-        self.db = db.SQLiteDB('data.db')
+        self.db = db.SQLiteDB(os.path.join(cur_dir, 'data.db'))
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -181,7 +181,7 @@ class Handle(BaseHandler):
 
 
 if __name__ == '__main__':
-    tornado.options.parse_config_file('config.py')
+    tornado.options.parse_config_file(os.path.join(cur_dir, 'config.py'))
     app = Application()
     app.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
