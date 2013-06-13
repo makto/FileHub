@@ -1,4 +1,3 @@
 *.py[co]
 data.db
 tmp/
-files/
