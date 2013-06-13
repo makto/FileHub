@@ -1,0 +1,45 @@
+<thead>
+    <tr>
+        <th style="width:28px">序号</th>
+        <th>文件名</th>
+        <th style="width:28px">删除</th>
+        <th style="width:55px">大小</th>
+        <th style="width:60px">上传者</th>
+        <th style="width:140px">上传日期</th>
+    </tr>
+</thead>
+<tbody>
+    {% set order = 0 %}
+    {% for dir in dirs %}
+    <tr id="{{ dir['id'] }}" {% if order%2 == 1 %}class="pure-table-odd"{% end %}>
+        <td><i class="ui-icon ui-icon-folder-collapsed dark"></i></td>
+        <td><a href="#" class="dir">{{ dir['name'] }}</a></td>
+        <td>{% if dir['owner'] == current_user['id'] %}
+            <a href="#" class="del">
+              <i class="ui-icon ui-icon-close dark"></i></a>
+            {% end %}</td>
+        <td></td>
+        <td>{{ dir['ownername'] }}</td>
+        <td>{{ dir['date'] }}</td>
+    </tr>
+    {% set order += 1 %}
+    {% end %}
+
+    {% set order2 = 1 %}
+    {% for file in files %}
+    <tr id="{{ file['id'] }}" {% if order%2 == 1 %}class="pure-table-odd"{% end %}>
+        <td>{{ order2 }}</td>
+        <td><a href="{{ dl_prefix + file['relpath'] }}">{{ file['name'] }}</a></td>
+        <td>{% if file['owner'] == current_user['id'] %}
+            <a href="#" class="del">
+              <i class="ui-icon ui-icon-close dark"></i></a>
+            {% end %}</td>
+        <td>{{ file['size_readable'] }}</td>
+        <td>{{ file['ownername'] }}</td>
+        <td>{{ file['date'] }}</td>
+    </tr>
+    {% set order2 += 1 %}
+    {% set order += 1 %}
+    {% end %}
+</tbody>
+

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<head>
+  <title></title>
+  <link rel="stylesheet" href="/static/css/pure-min.css">
+  <link rel="stylesheet" href="/static/css/labfile.css">
+  <link rel="stylesheet" href="/static/css/jquery-ui.min.css">
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/jquery-ui.min.js"></script>
+  <script src="/static/js/labfile.js"></script>
+  <script src="/static/js/fileupload.js"></script>
+</head>
+
+<body>
+  <!-- header part -->
+  <div class="pure-g-r">
+    <div class="pure-u-1-5">
+    </div>
+    <div class="pure-u-3-5 header">
+      <div class="pure-menu pure-menu-open pure-menu-horizontal">
+        <a class="pure-menu-heading" style="padding-left:0">FileHub</a>
+        <ul>
+          <li class="pure-menu-selected"><a href="">首页</a></li>
+          <li class="pure-menu-disabled"><a href="">And?</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pure-u-1-5">
+    </div>
+  </div>
+
+  <!--main part -->
+  <div class="pure-g-r">
+    <div class="pure-u-1-5"></div>
+    <div class="pure-u-3-5">
+
+      <div class="pure-g-r">
+        <div class="pure-u-4-5">
+          <div id="progressbar">
+            <div id="dropzone" class="fade">拖拽添加
+              <br/>点击按钮开始上传</div>
+          </div>
+        </div>
+        <div class="pure-u-1-5" style="text-align:right">
+          <div class="selectfile pure-button">
+              <input id="fileupload" type="file" name="file"
+              data-url="{{ upload_url }}"multiple> 选择文件
+          </div>
+          <div>
+            <button class="pure-button pure-button-disabled pure-button-primary"
+            id="upload" style="margin-top:10px">开始上传</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="uploadlist"><ol></ol></div>
+
+      <button class="pure-button pure-button-disabled" id="updir">上级目录</button>
+      &nbsp;&nbsp;<span id="pathnow">/</span>
+      <button class="pure-button" id="mkdir">新建目录</button>
+      <table class="pure-table" id="filelist">
+        <!--filled with ajax-->
+      </table>
+    </div>
+    <div class="pure-u-1-5"></div>
+  </div>
+
+  <!-- footer part -->
+  <div class="pure-g-r">
+    <div class="pure-u-1-5">
+    </div>
+    <div class="pure-u-3-5 footer">
+        <p>made by <a href="http://blog.makto.me">makto</a></p>
+        <p>with <a href="http://www.tornadoweb.org/">Tornado</a>,
+                <a href="http://jquery.com/">jQuery</a>,
+                <a href="http://purecss.io/">Pure</a></p>
+    </div>
+    <div class="pure-u-1-5">
+    </div>
+  </div>
+
+  <!-- hidden parts -->
+  <div id="dirdialog" title="新建目录">
+    <input type="text" name="dir" id="newdir" />
+    <p id="formaterror" class="ui-helper-hidden">目录名不能为空，不能含有特殊字符</p>
+    <p id="posterror" class="ui-helper-hidden"></p>
+  </div>
+
+  <p id="pathup" class="ui-helper-hidden"></p>
+
+</body>

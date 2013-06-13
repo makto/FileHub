@@ -1,0 +1,80 @@
+body {
+    font-size: 14px;
+    color: #232323;
+}
+
+body a {
+    text-decoration: none;
+    color: #0482A2;
+}
+
+body a:hover {
+    color: #ED9F5F;
+}
+
+.ui-icon.dark {
+    background-image: url(images/ui-icons_454545_256x240.png)
+}
+
+.header {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 30px;
+}
+
+.footer {
+    border-top: 1px solid #eee;
+    text-align: center;
+    margin-top: 30px;
+}
+
+#dropzone {
+    background: white;
+    width: 100%;
+    height: 62px;
+    line-height: 35px;
+    text-align: center;
+    font-weight: bold;
+    border: 5px dashed #0BBFD6;
+    color: #06B3C9;
+}
+#dropzone.hover {
+    background: #ED9F5F;
+    padding: 5px;
+}
+#dropzone.fade {
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -ms-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+    opacity: 1;
+}
+
+#uploadlist {
+    margin-bottom: 30px;
+}
+
+#mkdir {
+    float: right;
+}
+
+table{
+    table-layout: fixed;
+    width: 100%;
+}
+td{
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.selectfile {
+    overflow: hidden;
+    position: relative;
+}
+.selectfile input {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 25px;
+}
