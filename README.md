@@ -26,6 +26,7 @@ so FileHub comes with nginx support
 you can easily switch to nginx:
 
 1. install nginx with [nginx upload module](https://github.com/vkholodkov/nginx-upload-module)
+  - notice: this module doesn't support newest version of nginx, I'm using nginx 1.2.9 and it works fine
 2. put `nginx.conf` to `/etc/nginx/site-enabled/` (may differ for different OS)
 3. change the following fields in `filehub.conf` on your needs:
   - `root` in `location ^~ /static/`
@@ -45,6 +46,9 @@ this may be useful if you want to store files on another disk
 
 ## future features
 
+- codes and comments cleaning
+- more elegant module structure
+- auth system
 - display corresponding icons for different type of file
 - display uploading progress for individual file
 - handle uploading errors
