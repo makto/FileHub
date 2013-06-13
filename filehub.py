@@ -181,7 +181,7 @@ class Handle(BaseHandler):
 
 
 if __name__ == '__main__':
-    tornado.options.parse_config_file('config.py')
+    tornado.options.parse_config_file(os.path.join(cur_dir, 'config.py'))
     app = Application()
     app.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
