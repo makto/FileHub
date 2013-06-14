@@ -17,7 +17,6 @@ import tornado.web
 import tornado.options
 import tornado.escape
 from tornado.web import HTTPError
-from tornado.web import StaticFileHandler
 from tornado.options import options, define
 
 import db
@@ -63,6 +62,11 @@ class BaseHandler(tornado.web.RequestHandler):
             return tornado.escape.json_decode(user_json)
         else:
             return self.db.get_user_by_id(1)
+
+
+class StaticFileHandler(tornado.web.StaticFileHandler):
+    def set_extra_headers(self, path):
+        self.set_header('Content-Disposition', 'attachment')
 
 
 class Index(BaseHandler):
