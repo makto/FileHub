@@ -44,11 +44,24 @@ you can change that by modifying `files_path` in `config.py`
 
 this may be useful if you want to store files on another disk
 
+### super user
+
+FileHub now comes with a simple auth system, to indentify the uploader and protect users' files
+
+by default a super user account will be generated with the project's initial setup
+
+username: `makto`
+
+password: `toruk`
+
+super user could delete any file or folder despite its real owner
+
+you can alter any user into super user with raw SQL in the command line
+
 ## future features
 
 - codes and comments cleaning
 - more elegant module structure
-- auth system
 - display corresponding icons for different type of file
 - display uploading progress for individual file
 - handle uploading errors
