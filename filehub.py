@@ -33,6 +33,7 @@ class Application(tornado.web.Application):
                '用于保存文件的目录不存在: %s'%options.files_path
         handlers = [
             (r'/', Index),
+            (r'/user/?', User),
             (r'/files/?', Files),
             (r'/handle/?', Handle),
         ]
@@ -78,7 +79,32 @@ class Index(BaseHandler):
             upload_url = '/files/'
         else:
             pass # what else?
-        self.render('index.html',upload_url=upload_url)
+
+        uname = self.current_user['nickname']
+        self.render('index.html',upload_url=upload_url,
+                                 uname=uname)
+
+
+class User(BaseHandler):
+    def post(self):
+        """登陆或注册"""
+        uname = self.get_argument('uname')
+        upass = self.get_argument('upass')
+        user = self.db.get_user(uname)
+        if user:
+            if user['password'] != upass:
+                self.write('密码错误')
+                return
+        else:
+            user = self.db.create_user(uname, upass)
+        self.set_secure_cookie('user',
+                        tornado.escape.json_encode(dict(user)))
+        self.write('ok')
+
+    def delete(self):
+        """退出登陆"""
+        self.clear_cookie('user')
+        self.write('ok')
 
 
 class Files(BaseHandler):
@@ -138,11 +164,16 @@ class Files(BaseHandler):
     def delete(self):
         """删除文件/目录"""
         owner = self.current_user['id']
+        issuper = self.current_user['super']
         fid = self.get_argument("fid")
         finfo = self.db.get_file(fid=fid)
         if not finfo:
             raise HTTPError(404, 'no such file exists')
-        elif finfo['owner'] != owner:
+        # 除以下三种情况，其余情况下都不允许删除
+        # 匿名用户创建的文件
+        # 该登陆用户创建的文件
+        # 该用户为超级用户
+        elif finfo['owner'] != 1 and finfo['owner'] != owner and not issuper:
             raise HTTPError(403, 'you have no permission')
         else:
             fullpath = os.path.join(options.files_path,

@@ -14,7 +14,7 @@
     <tr id="{{ dir['id'] }}" {% if order%2 == 1 %}class="pure-table-odd"{% end %}>
         <td><i class="ui-icon ui-icon-folder-collapsed dark"></i></td>
         <td><a href="#" class="dir">{{ dir['name'] }}</a></td>
-        <td>{% if dir['owner'] == current_user['id'] %}
+        <td>{% if dir['owner'] == 1 or current_user['super'] or dir['owner'] == current_user['id'] %}
             <a href="#" class="del">
               <i class="ui-icon ui-icon-close dark"></i></a>
             {% end %}</td>
@@ -30,7 +30,7 @@
     <tr id="{{ file['id'] }}" {% if order%2 == 1 %}class="pure-table-odd"{% end %}>
         <td>{{ order2 }}</td>
         <td><a href="{{ dl_prefix + file['relpath'] }}">{{ file['name'] }}</a></td>
-        <td>{% if file['owner'] == current_user['id'] %}
+        <td>{% if file['owner'] == 1 or current_user['super'] or file['owner'] == current_user['id'] %}
             <a href="#" class="del">
               <i class="ui-icon ui-icon-close dark"></i></a>
             {% end %}</td>

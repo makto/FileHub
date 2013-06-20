@@ -45,6 +45,7 @@ init_script = """
     );
     create index file_1 on file(dir);
     insert into user (id, nickname, password) values (1, 'nobody', '');
+    insert into user (id, nickname, password, super) values (2, 'makto', 'toruk', 1);
     commit;
 """
 
@@ -66,6 +67,22 @@ class SQLiteDB(object):
         user = c.fetchone()
         c.close()
         return user
+
+    def get_user(self, uname):
+        c = self.conn.cursor()
+        sql = 'select * from user where nickname=?'
+        c.execute(sql, (uname,))
+        user = c.fetchone()
+        c.close()
+        return user
+
+    def create_user(self, uname, upass):
+        c = self.conn.cursor()
+        sql = 'insert into user (nickname, password) values (?, ?)'
+        c.execute(sql, (uname, upass))
+        self.conn.commit()
+        c.close()
+        return self.get_user(uname)
 
     def get_files(self, path):
         """返回path下的所有文件

@@ -143,6 +143,34 @@ $(document).ready(function(){
         }
     });
 
+    // init login dialog
+    $("#logindialog").dialog({
+        autoOpen: false,
+        closeOnEscape: true,
+        modal: true,
+        show: "fade",
+        hide: "fade",
+        buttons: {
+            "确定": function(){
+                var uname = $("#uname").val();
+                var upass = $("#upass").val();
+                $.post("/user/", {"uname": uname, "upass": upass},
+                    function(resp){
+                        if(resp == "ok"){
+                            location.reload();
+                        } else {
+                            $("#posterror2").text(resp).removeClass("ui-helper-hidden");
+                        }
+                    });
+            },
+        },
+        close: function(e, u){
+            $("#posterror2").addClass("ui-helper-hidden");
+            $("#uname").val("");
+            $("#upass").val("");
+        }
+    });
+
     // click events
     // begin
     $("#mkdir").click(function(){
@@ -182,6 +210,19 @@ $(document).ready(function(){
                 if(data=="ok"){
                     parenttr.hide('slow',function(){$(this).remove();});
                 }}});
+    });
+    
+    $("#uinfo").on("click", "a#login", function(e){
+        e.preventDefault();
+        $("#logindialog").dialog("open");
+    });
+
+    $("#uinfo").on("click", "a#logout", function(e){
+        e.preventDefault();
+        $.ajax({url: "/user/", type: "DELETE", dataType: "text",
+                success: function(data, ts){
+                    if (data == "ok")location.reload();
+                }});
     });
     // click events
     // stop

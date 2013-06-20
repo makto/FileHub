@@ -12,6 +12,11 @@ body a:hover {
     color: #ED9F5F;
 }
 
+#uinfo {
+    padding-top: 8px;
+    text-align: right;
+}
+
 .ui-icon.dark {
     background-image: url(images/ui-icons_454545_256x240.png)
 }
