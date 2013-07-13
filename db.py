@@ -13,6 +13,7 @@
 """
 
 import sqlite3
+import threading
 
 from utils import size_readify
 
@@ -51,17 +52,30 @@ init_script = """
 
 
 class SQLiteDB(object):
+    threadlocal = threading.local()
     def __init__(self, dbname):
-        self.conn = sqlite3.connect(dbname)
+        self._dbname = dbname
+        conn = self.connect()
         try:
-            self.conn.execute('select * from file where 1=0')
+            conn.execute('select * from file where 1=0')
         except sqlite3.OperationalError:
-            self.conn.executescript(init_script)
-            self.conn.commit()
-        self.conn.row_factory = sqlite3.Row
+            conn.executescript(init_script)
+            conn.commit()
+    
+    
+    @properpty
+    def connnect(self):
+        self._ensure_connect()
+        return self.threadlocal.con
+        
+    def _ensure_connect(self):
+        if not hasattr(self.threadlocal, 'con') or self.threadlocal.con is None:
+            self.threadlocal.con =  sqllite3.connect(self._dbname)
+            self.threadlocal.row_factory = sqlite3.Row
+      
 
     def get_user_by_id(self, uid):
-        c = self.conn.cursor()
+        c = self.connect.cursor()
         sql = 'select id, nickname, super from user where id=?'
         c.execute(sql, (uid,))
         user = c.fetchone()
@@ -69,7 +83,7 @@ class SQLiteDB(object):
         return user
 
     def get_user(self, uname):
-        c = self.conn.cursor()
+        c = self.connect.cursor()
         sql = 'select * from user where nickname=?'
         c.execute(sql, (uname,))
         user = c.fetchone()
@@ -77,10 +91,11 @@ class SQLiteDB(object):
         return user
 
     def create_user(self, uname, upass):
-        c = self.conn.cursor()
+        conn = self.connect()
+        c = conn.cursor()
         sql = 'insert into user (nickname, password) values (?, ?)'
         c.execute(sql, (uname, upass))
-        self.conn.commit()
+        conn.commit()
         c.close()
         return self.get_user(uname)
 
@@ -90,7 +105,7 @@ class SQLiteDB(object):
         目录和文件作为两个列表返回"""
         if path != '/':
             path = path.rstrip('/')
-        c = self.conn.cursor()
+        c = self.connect.cursor()
         sql = 'select name, type, owner, ownername, size_readable, ' +\
               'relpath, date, id ' +\
               'from file where dir=? order by date'
@@ -108,7 +123,8 @@ class SQLiteDB(object):
         return dirs, files
 
     def save_file(self, fileinfo):
-        c = self.conn.cursor()
+        conn = self.connet
+        c = conn.cursor()
         sql = 'insert into file ' +\
           '(name, type, dir, relpath, owner, size, ' +\
           'size_readable, hash, ownername) ' +\
@@ -119,8 +135,9 @@ class SQLiteDB(object):
             fileinfo['hash'] = ''
         fileinfo['size_readable'] = size_readify(int(fileinfo['size']))
         c.execute(sql, fileinfo)
-        self.conn.commit()
+        conn.commit()
         c.close()
+        
 
     def get_file(self, relpath='', fid=''):
         """获取由relpath或fid唯一标识的file"""
@@ -128,7 +145,7 @@ class SQLiteDB(object):
         pname = 'relpath' if relpath else 'id'
         sql = 'select id, type, relpath, owner from file where %s=?'%pname
 
-        c = self.conn.cursor()
+        c = self.connect.cursor()
         finfo = c.execute(sql, (pvalue,)).fetchone()
         c.close()
         return finfo
@@ -141,8 +158,8 @@ class SQLiteDB(object):
         sql1 = 'select type from file where %s=?' % pname
         sql2 = 'delete from file where %s=?' % pname
         sql3 = 'delete from file where dir=?' 
-
-        c = self.conn.cursor()
+        coon = self.connect
+        c = conn.cursor()
         finfo = c.execute(sql1, (pvalue,)).fetchone()
         if not finfo:
             return
@@ -151,7 +168,7 @@ class SQLiteDB(object):
             c.execute(sql3, (pvalue,))
         else:
             c.execute(sql2, (pvalue,))
-        self.conn.commit()
+            conn.commit()
         c.close()
         return finfo
 
@@ -160,7 +177,7 @@ class SQLiteDB(object):
         统一做去后缀的处理"""
         if name == '/':
             return True
-        c = self.conn.cursor()
+        c = self.connect.cursor()
         sql = 'select id from file where type=? and relpath=?'
         params = ('dir', name.rstrip('/'))
         c.execute(sql, params)
