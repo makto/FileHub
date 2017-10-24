@@ -145,7 +145,7 @@ class Files(BaseHandler):
                 relpath = utils.make_relpath(self, f.filename, path)
                 fullpath = os.path.join(options.files_path,
                                         relpath.lstrip('/'))
-                with open(fullpath, 'w') as tmp:
+                with open(fullpath, 'wb') as tmp:
                     tmp.write(f.body)
                 finfo.update({'name': f.filename, 'type': f.content_type,
                               'relpath': relpath, 'size': len(f.body),
