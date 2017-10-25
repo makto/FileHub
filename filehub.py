@@ -12,16 +12,20 @@ import os.path
 import os
 import shutil
 
+import chardet
 import tornado.ioloop
 import tornado.web
 import tornado.options
 import tornado.escape
 from tornado.web import HTTPError
 from tornado.options import options, define
+import tornado.gen
 
 import db
 import utils
-
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 cur_dir = os.path.abspath(os.path.dirname(__file__))
 define("files_path", default=os.path.join(cur_dir, 'files'))
 define("static_server", default='tornado')
@@ -48,7 +52,50 @@ class Application(tornado.web.Application):
             static_path = os.path.join(cur_dir, 'static'),
         )
         super(Application, self).__init__(handlers, **settings)
+        if os.path.exists(os.path.join(cur_dir, 'data.db')):
+            isFirst=False
+        else:
+            isFirst=True
         self.db = db.SQLiteDB(os.path.join(cur_dir, 'data.db'))
+        # os.chdir(options.files_path)
+        if isFirst:
+            for fpathe,dirs,fs in os.walk(options.files_path):
+                print fpathe,dirs,fs
+                dirspath = os.path.relpath(fpathe).lstrip("files")
+                if dirspath == '':
+                    dirspath = '/'
+                dirspath=dirspath.replace('\\', '/')
+                finfo = dict(dir=dirspath, owner=2, ownername='nao')
+                # 文件夹类型
+                for dir in dirs:
+
+                    relpath = os.path.join(dirspath,dir)
+                    relpath = relpath.replace('\\', '/')
+
+                    finfo.update({'name': dir,
+                              'type': 'dir', 'relpath': relpath})
+                    self.db.save_file(finfo)
+                # 文件
+                for file in fs:
+                    fullpath = os.path.join(fpathe,file)
+                    # print fullpath
+                    relpath = os.path.join(dirspath,file)
+                    # print relpath
+                    relpath = relpath.replace('\\', '/')
+                    # print chardet.detect(file)
+                    # print type(file)
+                    # filePath = file.decode("iso-8859-1")
+                    # print filePath
+                    size = os.path.getsize(fullpath)
+                    # print size
+                    finfo.update({'name': relpath   , 'type': 'local',
+                                  'relpath': relpath, 'size': size,
+                                  'hash': ''})
+                    self.db.save_file(finfo)
+
+
+        else:
+            print 'not first'
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -109,6 +156,7 @@ class User(BaseHandler):
 
 class Files(BaseHandler):
     """将文件/目录看作同一种资源"""
+
     def get(self):
         """返回path目录下的所有文件列表"""
         path = self.get_argument('path')
@@ -124,6 +172,7 @@ class Files(BaseHandler):
         self.render('files.html', files=files, dirs=dirs,
                     dl_prefix=dl_prefix)
 
+    @tornado.gen.coroutine
     def post(self):
         """创建文件/目录
         若使用nginx处理upload，则文件的创建会交给Handle"""
@@ -134,25 +183,24 @@ class Files(BaseHandler):
         owner = self.current_user['id']
         ownername = self.current_user['nickname']
         finfo = dict(dir=path, owner=owner, ownername=ownername)
-
         filetype = self.get_argument('type')
         assert filetype in ('dir', 'file')
-
         if filetype == 'file':
             assert options.static_server == 'tornado'
             files = self.request.files.get('file')
             for f in files:
                 relpath = utils.make_relpath(self, f.filename, path)
-                fullpath = os.path.join(options.files_path,
-                                        relpath.lstrip('/'))
-                with open(fullpath, 'w') as tmp:
-                    tmp.write(f.body)
+                fullpath = os.path.join(options.files_path,relpath[1:])
+                                        # relpath.lstrip('/'))
+                with open(fullpath, 'wb') as tmp:
+                    yield tmp.write(f.body)
                 finfo.update({'name': f.filename, 'type': f.content_type,
                               'relpath': relpath, 'size': len(f.body),
                               'hash': utils.md5(f.body)})
                 self.db.save_file(finfo)
         else: # filetype == 'dir'
             relpath = utils.make_relpath(self, self.get_argument('name'), path)
+            relpath = relpath.replace('\\', '/')
             fullpath = os.path.join(options.files_path, relpath.lstrip('/'))
             os.mkdir(fullpath)
             finfo.update({'name': self.get_argument('name'),
@@ -202,7 +250,6 @@ class Handle(BaseHandler):
         src_path = self.get_argument('file.path')
         full_path = os.path.join(options.files_path, relpath.lstrip('/'))
         shutil.copyfile(src_path, full_path)
-
         finfo = dict(name=name,
                      dir=path,
                      relpath=relpath,
@@ -212,7 +259,6 @@ class Handle(BaseHandler):
                      owner = self.current_user['id'],
                      ownername = self.current_user['nickname'])
         self.db.save_file(finfo)
-
         self.write('ok')
 
 
