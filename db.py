@@ -9,7 +9,6 @@
 # Todo
   - 检查文件是否已上传过（md5?）
   - 磁盘空间限制的显示
-
 """
 
 import sqlite3
@@ -45,7 +44,7 @@ init_script = """
     );
     create index file_1 on file(dir);
     insert into user (id, nickname, password) values (1, 'nobody', '');
-    insert into user (id, nickname, password, super) values (2, 'makto', 'toruk', 1);
+    insert into user (id, nickname, password, super) values (2, 'nao', 'nao12345', 1);
     commit;
 """
 
@@ -162,9 +161,12 @@ class SQLiteDB(object):
             return True
         c = self.conn.cursor()
         sql = 'select id from file where type=? and relpath=?'
+        print name
+        print name.rstrip('/')
         params = ('dir', name.rstrip('/'))
         c.execute(sql, params)
         dirs = c.fetchall()
+        print dirs
         c.close()
         return bool(dirs)
 
